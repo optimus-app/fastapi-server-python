@@ -1,0 +1,8 @@
+README.md
+pyproject.toml
+setup.cfg
+src/binance_api.egg-info/PKG-INFO
+src/binance_api.egg-info/SOURCES.txt
+src/binance_api.egg-info/dependency_links.txt
+src/binance_api.egg-info/top_level.txt
+src/main/__init__.py

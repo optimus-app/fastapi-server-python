@@ -1,5 +1,4 @@
-import pytest
-
+import pytestk
 from src.main import Entity
 
 """
@@ -7,7 +6,6 @@ Note that every test has to be started with the word test.
 For instance, test_entity_init, test_entity_change
 Others such as entity_init_test, entity_change_test will not be run
 """
-
 
 @pytest.mark.parametrize("name, age", [("John", 30), ("Doe", 40)])
 def test_entity_init(name, age):
