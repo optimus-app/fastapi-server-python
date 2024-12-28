@@ -40,22 +40,12 @@ jobs:
         name: pants-log
         path: .pants.d/workdir/pants.log
       if: always()  # We want the log even on failures.
-  manual-trigger-deploy:
-    runs-on: ubuntu-20.04
-    outputs:
-        CONTINUE_JOBS: ${{ steps.manual-trigger.outputs.CONTINUE_JOBS }}
-    steps:
-      - name: manual-trigger
-        id: manual-trigger
-        uses: benhamiltonpro/manual-trigger@v1
-        with:
-          RUN_NAME: "deploy"
   deploy:
+    # This job will be triggered when a release branch is created
     name: deploy
     needs: build
     if: |
-      ${{ needs.manual-trigger-deploy.outputs.CONTINUE_JOBS == 'true' }} &&
-      (startsWith(github.ref, 'ref/heads/feature/'))
+      (startsWith(github.ref, 'ref/heads/release/')
     runs-on: ubuntu-20.04
     strategy:
       matrix:
