@@ -2,6 +2,10 @@ name: CI
 
 on: 
   push:
+    branches:
+      - main
+      - 'feature/*'
+      - 'release/*'
 
 jobs:
   build:
@@ -41,18 +45,16 @@ jobs:
         path: .pants.d/workdir/pants.log
       if: always()  # We want the log even on failures.
   deploy:
-    # This job will be triggered when a release branch is created
     name: deploy
-    needs: build
-    if: |
-      (startsWith(github.ref, 'ref/heads/release/'))
     runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        python-version: [3.9]
+    if: startsWith(github.ref, 'refs/heads/release/')
+    needs: build
     steps:
-      - name: Deploy
-        id: deploy
-        run: |
-          echo "Deploying to staging"
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: 3.9
+    - name: Deploy
+      run: |
+        echo "Deploying..."
       
