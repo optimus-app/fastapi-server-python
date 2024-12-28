@@ -19,4 +19,4 @@ interpreter_constraints = ["==3.9.*"]
 [python-bootstrap]
 # This searches the Python interpreters in your machine. Installation of pyenv is highly encouraged
 # Make sure that at least one Python interpreter is in PATH
-search_path = ["<PATH>", "PYENV"]
+search_path = ["<PATH>", "<PYENV>"]

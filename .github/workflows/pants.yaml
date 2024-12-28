@@ -22,7 +22,7 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - uses: pantsbuild/actions/init-pants@v8
+    - uses: pantsbuild/actions/init-pants@main
       with:
         gha-cache-key: v0
         named-caches-hash: ${{ hashFiles('python-default.lock') }}
