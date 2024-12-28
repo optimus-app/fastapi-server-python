@@ -1,0 +1,60 @@
+name: CI
+
+on: 
+  push:
+    branches:
+      - main
+      - 'feature/*'
+      - 'release/*'
+
+jobs:
+  build:
+    name: static analysis
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: [3.9]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    - uses: pantsbuild/actions/init-pants@main
+      with:
+        gha-cache-key: v0
+        named-caches-hash: ${{ hashFiles('python-default.lock') }}
+        cache-lmdb-store: 'true'  # defaults to 'false'
+    - name: Check pants version
+      run: pants --version
+    - name: Check BUILD files
+      run: |
+        pants tailor --check update-build-files --check ::
+    - name: Static Analysis
+      # Currently, no workaround on running on changed files yet -- our repository isn't that big to need this
+      run: | 
+        pants lint ::
+    - name: Unit Test
+      # Run tests for all targets that have changed since the last commit on main
+      # also with dependency change with --changed-dependents
+      run: |
+        pants test :: 
+    - name: Upload pants log
+      uses: actions/upload-artifact@v4
+      with:
+        name: pants-log
+        path: .pants.d/workdir/pants.log
+      if: always()  # We want the log even on failures.
+  deploy:
+    name: deploy
+    runs-on: ubuntu-20.04
+    if: startsWith(github.ref, 'refs/heads/release/')
+    needs: build
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: 3.9
+    - name: Deploy
+      run: |
+        echo "Deploying..."
+      

@@ -1,7 +1,5 @@
 from typing import Optional
 
-# type: ignore
-
 
 class Entity:
     def __init__(self, name: str, age: int):
@@ -13,9 +11,3 @@ class Entity:
 
     def change_age(self, new_age: Optional[int] = None):
         self.age = new_age
-
-
-entity = Entity("John", 30)
-
-entity.change_name("Doe")
-entity.change_age(40)
