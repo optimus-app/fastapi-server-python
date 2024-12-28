@@ -2,13 +2,6 @@ name: CI
 
 on: 
   push:
-  pull_request:
-  workflow_dispatch:
-    inputs:
-      deploy:
-        description: 'Deploy to staging'
-        required: true
-        type: boolean
 
 jobs:
   build:
@@ -47,13 +40,22 @@ jobs:
         name: pants-log
         path: .pants.d/workdir/pants.log
       if: always()  # We want the log even on failures.
+  manual-trigger-deploy:
+    runs-on: ubuntu-20.04
+    outputs:
+        CONTINUE_JOBS: ${{ steps.manual-trigger.outputs.CONTINUE_JOBS }}
+    steps:
+      - name: manual-trigger
+        id: manual-trigger
+        uses: benhamiltonpro/manual-trigger@v1
+        with:
+          RUN_NAME: "deploy"
   deploy:
     name: deploy
     needs: build
     if: |
-      (startsWith(github.ref, 'ref/heads/feature/') && 
-      github.event_name == 'workflow_dispatch' && 
-      inputs.deploy == true)
+      ${{ needs.manual-trigger-deploy.outputs.CONTINUE_JOBS == 'true' }} &&
+      (startsWith(github.ref, 'ref/heads/feature/'))
     runs-on: ubuntu-20.04
     strategy:
       matrix:
