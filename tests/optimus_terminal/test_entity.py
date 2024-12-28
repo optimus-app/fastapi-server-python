@@ -1,7 +1,7 @@
 import pytest
 
-from optimus_terminal.entity.entity import Entity
-from optimus_terminal.logic import set_john
+from optimus_terminal.entity import Entity
+from optimus_terminal.logic.logic_core import set_john
 
 """
 Note that every test has to be started with the word test.
