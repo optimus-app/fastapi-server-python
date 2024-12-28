@@ -1,0 +1,62 @@
+name: CI
+
+on: 
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Deploy to staging'
+        required: true
+        type: boolean
+
+jobs:
+  build:
+    name: static analysis
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: [3.9]
+    steps:
+    - uses: action/checkout@v4
+    - uses: action/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    - uses: pantsbuild/actions/init-pants@v8
+    - name: Check pants version
+      run: pants --version
+    - name: Check BUILD files
+      run: |
+        pants tailor --check update-build-files --check ::
+    - name: Static Analysis
+      run: | 
+        pants \
+        --changed-since=origin/main \
+        tailor --check \
+        update-build-files --check \
+        lint
+    - name: Unit Test
+      # Run tests for all targets that have changed since the last commit on main
+      # also with dependency change with --changed-dependents
+      run: |
+        pants \
+        --changed-since=origin/main \
+        --changed-dependents=transitive \
+        test ::
+  deploy:
+    name: deploy
+    needs: build
+    if: |
+      (startsWith(github.ref, 'ref/heads/release/') && 
+      github.event_name == 'workflow_dispatch' && 
+      input.deploy == true)
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: [3.9]
+    steps:
+      - name: Deploy
+        id: deploy
+        run: |
+          echo "Deploying to staging"
+      
