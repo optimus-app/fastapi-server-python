@@ -33,9 +33,9 @@ jobs:
       run: |
         pants tailor --check update-build-files --check ::
     - name: Static Analysis
+      # Currently, no workaround on running on changed files yet -- our repository isn't that big to need this
       run: | 
         pants \
-        --changed-since=origin/main \
         tailor --check \
         update-build-files --check \
         lint
@@ -47,6 +47,12 @@ jobs:
         --changed-since=origin/main \
         --changed-dependents=transitive \
         test ::
+    - name: Upload pants log
+      uses: actions/upload-artifact@v4
+      with:
+        name: pants-log
+        path: .pants.d/workdir/pants.log
+      if: always()  # We want the log even on failures.
   deploy:
     name: deploy
     needs: build
