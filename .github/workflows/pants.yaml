@@ -45,7 +45,7 @@ jobs:
     name: deploy
     needs: build
     if: |
-      (startsWith(github.ref, 'ref/heads/release/')
+      (startsWith(github.ref, 'ref/heads/release/'))
     runs-on: ubuntu-20.04
     strategy:
       matrix:
