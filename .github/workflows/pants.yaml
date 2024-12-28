@@ -23,6 +23,10 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - uses: pantsbuild/actions/init-pants@v8
+      with:
+        gha-cache-key: v0
+        named-caches-hash: ${{ hashFiles('python-default.lock') }}
+        cache-lmdb-store: 'true'  # defaults to 'false'
     - name: Check pants version
       run: pants --version
     - name: Check BUILD files
