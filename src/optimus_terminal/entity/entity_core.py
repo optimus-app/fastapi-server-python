@@ -1,5 +1,6 @@
 from typing import Optional
 
+
 class Entity:
     def __init__(self, name: str, age: int):
         self.name = name

@@ -1,12 +1,14 @@
 import pytest
-from optimus_terminal.entity import Entity
-from optimus_terminal.logic.logic_core import set_john
+
+from optimus_terminal.entity.entity import Entity
+from optimus_terminal.logic import set_john
 
 """
 Note that every test has to be started with the word test.
 For instance, test_entity_init, test_entity_change
 Others such as entity_init_test, entity_change_test will not be run
 """
+
 
 @pytest.mark.parametrize("name, age", [("John", 30), ("Doe", 40)])
 def test_entity_init(name, age):
@@ -25,6 +27,7 @@ def test_entity_change(name, age, new_name, new_age):
     assert entity.name == new_name
     assert entity.age == new_age
 
+
 def test_set_john():
     entity = set_john()
-    assert True
+    assert entity.name == "Doe"
