@@ -49,7 +49,7 @@ jobs:
     if: |
       (startsWith(github.ref, 'ref/heads/release/') && 
       github.event_name == 'workflow_dispatch' && 
-      input.deploy == true)
+      inputs.deploy == true)
     runs-on: ubuntu-20.04
     strategy:
       matrix:
