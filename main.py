@@ -1,8 +1,7 @@
 # For FASTAPI and API requests
-from typing import Optional
 from fastapi import FastAPI, HTTPException, Depends, status
-from pydantic import BaseModel
 import requests
+import yfinance as yf
 
 # For os and environment variables for Langchain OpenAI and langchain agent
 import os 
@@ -14,21 +13,15 @@ from langchain_community.tools.yahoo_finance_news import YahooFinanceNewsTool
 from langchain_cohere import ChatCohere
 from langchain_core.output_parsers import StrOutputParser
 
+# For input and output models
+from models import StockRequestData, StockRequestLangChain, StockEntry, StockResponse
+
 # Obtain environment variables
 load_dotenv()
 cohereApiKey = os.getenv("COHERE_API_KEY") # COHERE_API_KEY = "pbMSOmk98DtRQtbVqc9NB2XYUn1KzNgpc4GDsHCv"
 
 # Setting up a FAST API application
 app = FastAPI()
-
-# Inputs for two APIs
-class StockRequestData(BaseModel):
-    symbol: str                         # Symbol of the Stock
-    order: Optional[str] = "asc"        # Order: asc/desc
-    limit: Optional[str] = "5"          # Limit: E.g. 10
-
-class StockRequestLangChain(BaseModel):
-    symbol: str                         # Symbol of the Stock
 
 # Actual implementation of APIs
 @app.post("/stock-news-polygon")
@@ -49,3 +42,45 @@ def stockNewsLangChain(request: StockRequestLangChain):
     result = chain.invoke(f"Tell me about today's news about {request.symbol}?")
     
     return {"result": str(result)}
+
+# Stock Data API
+@app.get("/stock-data/{symbol}/{period}", response_model=StockResponse)
+def stockPrice(symbol: str, period: str):
+    try:
+        ticker = yf.Ticker(symbol)
+        period_list = ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"]
+        interval_map = {
+            "1d": "1m",
+            "5d": "15m",
+            "1mo": "1h",
+            "3mo": "1d",
+            "6mo": "1d",
+            "1y": "1d",
+            "2y": "1d",
+            "5y": "5d",
+            "10y": "1mo",
+            "ytd": "1wk",
+            "max": "1mo"
+        }
+        if period not in period_list:
+            raise HTTPException(status_code=404, detail="Invalid period. Please use one of the following: " + ", ".join(period_list))
+        
+        interval = interval_map[period]
+        hist = ticker.history(period=period, interval=interval, auto_adjust=False, back_adjust=False, actions=False)
+
+        if hist.empty:
+            raise HTTPException(status_code=404, detail="No data found for the given symbol.")
+        
+        entries = []
+        for index, row in hist.iterrows():
+            entries.append(StockEntry(
+                date=index.strftime('%Y-%m-%d %H:%M:%S'),
+                open=row['Open'],
+                high=row['High'],
+                low=row['Low'],
+                close=row['Close'],
+                volume=row['Volume']
+            ))
+        return StockResponse(symbol=symbol.upper(), entries=entries)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
