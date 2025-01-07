@@ -43,9 +43,10 @@ def stockNewsLangChain(request: StockRequestLangChain):
     
     return {"result": str(result)}
 
-# Stock Data API
-@app.get("/stock-data/{symbol}/{period}", response_model=StockResponse)
-def stockPrice(symbol: str, period: str):
+# Stock Price API
+@app.get("/stock-price/{symbol}", response_model=StockResponse)
+@app.get("/stock-price/{symbol}/{period}", response_model=StockResponse)
+def stockPrice(symbol: str, period: str = "1d"):
     try:
         ticker = yf.Ticker(symbol)
         period_list = ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"]
