@@ -1,7 +1,7 @@
 from typing import Optional, List
 from pydantic import BaseModel
 
-# Inputs for two APIs
+# Inputs for Stock News APIs
 class StockRequestData(BaseModel):
     symbol: str                         # Symbol of the Stock
     order: Optional[str] = "asc"        # Order: asc/desc
@@ -10,7 +10,7 @@ class StockRequestData(BaseModel):
 class StockRequestLangChain(BaseModel):
     symbol: str                         # Symbol of the Stock
 
-# Outputs for Stock Data API
+# Outputs for Stock Price API
 class StockEntry(BaseModel):
     date: str
     open: float
