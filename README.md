@@ -82,7 +82,7 @@ To run tests, run the following command:
 ```bash
 $ pants test :: # To run all tests
 $ pants test tests/optimus_terminal/:: # To run tests in a specific folder
-$ pants test tests/optims_terminal/test_entity.py # To run tests in a specific file
+$ pants test tests/optimus_terminal/test_entity.py # To run tests in a specific file
 ```
 
 To run formatting tools, run the following command:
@@ -93,5 +93,7 @@ $ pants fmt src/optimus_terminal/:: # To run formatting tools in a specific fold
 $ pants fmt src/optimus_terminal/entity/entity_core.py # To run formatting tools in a specific file
 ```
 
-
-
+# Start Server
+```zsh
+$ pants run src/optimus_terminal/fast_api/main.py
+```
