@@ -7,6 +7,7 @@ import uvicorn
 import yfinance as yf
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, status
+
 # For Langchain
 from langchain.agents import AgentType, initialize_agent
 from langchain_cohere import ChatCohere
@@ -14,8 +15,12 @@ from langchain_community.tools.yahoo_finance_news import YahooFinanceNewsTool
 from langchain_core.output_parsers import StrOutputParser
 
 # For input and output models
-from optimus_terminal.models import (StockEntry, StockRequestData,
-                                     StockRequestLangChain, StockResponse)
+from optimus_terminal.models import (
+    StockEntry,
+    StockRequestData,
+    StockRequestLangChain,
+    StockResponse,
+)
 
 # Obtain environment variables
 load_dotenv()
