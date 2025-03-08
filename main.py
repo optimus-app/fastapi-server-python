@@ -1,5 +1,6 @@
 # For FASTAPI and API requests
 from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi.middleware.cors import CORSMiddleware
 import requests
 import yfinance as yf
 
@@ -18,10 +19,24 @@ from models import StockRequestData, StockRequestLangChain, StockEntry, StockRes
 
 # Obtain environment variables
 load_dotenv()
-cohereApiKey = os.getenv("COHERE_API_KEY") # COHERE_API_KEY = "pbMSOmk98DtRQtbVqc9NB2XYUn1KzNgpc4GDsHCv"
+cohereApiKey = os.getenv("COHERE_API_KEY")
 
 # Setting up a FAST API application
 app = FastAPI()
+
+# Configure CORS
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 
 # Actual implementation of APIs
 @app.post("/stock-news-polygon")
@@ -49,7 +64,7 @@ def stockNewsLangChain(request: StockRequestLangChain):
 def stockPrice(symbol: str, period: str = "1d"):
     try:
         ticker = yf.Ticker(symbol)
-        period_list = ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"]
+        period_list = ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max", "all"]
         interval_map = {
             "1d": "1m",
             "5d": "15m",
@@ -61,12 +76,14 @@ def stockPrice(symbol: str, period: str = "1d"):
             "5y": "5d",
             "10y": "1mo",
             "ytd": "1wk",
-            "max": "1mo"
+            "max": "1mo",
+            "all": "1d"
         }
         if period not in period_list:
             raise HTTPException(status_code=404, detail="Invalid period. Please use one of the following: " + ", ".join(period_list))
         
         interval = interval_map[period]
+        period = "max" if period == "all" else period
         hist = ticker.history(period=period, interval=interval, auto_adjust=False, back_adjust=False, actions=False)
 
         if hist.empty:
